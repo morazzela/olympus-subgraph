@@ -7,7 +7,6 @@ import { MEMO_ADDRESS, MIM_ADDRESS, MIM_TIME_PAIR, TIME_ADDRESS, TREASURY_ADDRES
 import { ProtocolMetric } from '../generated/schema'
 
 const POW_9 = BigInt.fromI32(10).pow(9).toBigDecimal();
-const POW_12 = BigInt.fromI32(10).pow(12).toBigDecimal();
 
 export function updateProtocolMetrics(event: ethereum.Event): void{
     let metrics = loadOrCreateProtocolMetrics(event.block.timestamp);
@@ -19,6 +18,7 @@ export function updateProtocolMetrics(event: ethereum.Event): void{
     metrics.ohmPrice = getFORTPrice();
     metrics.marketCap = metrics.totalSupply.times(metrics.ohmPrice)
     metrics.totalValueLocked = metrics.sOhmCirculatingSupply.times(metrics.ohmPrice)
+    metrics.ownedLiquidity = getOwnedLiquidity()
 
     const mvRfv = getMvRfv();
     metrics.treasuryMarketValue = mvRfv[0]
@@ -30,6 +30,13 @@ export function updateProtocolMetrics(event: ethereum.Event): void{
     metrics.treasuryFORTMIMRiskFreeValue = mvRfv[6]    
 
     metrics.save()
+}
+
+function getOwnedLiquidity(): BigDecimal {
+    const pair = ERC20.bind(Address.fromString(MIM_TIME_PAIR));
+    const total = pair.totalSupply().toBigDecimal()
+    const balance = pair.balanceOf(Address.fromString(TREASURY_ADDRESS)).toBigDecimal()
+    return balance.div(total).times(BigDecimal.fromString("100"))
 }
 
 function getMvRfv(): BigDecimal[] {

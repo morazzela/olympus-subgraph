@@ -42,6 +42,7 @@ export class ProtocolMetric extends Entity {
       "treasuryWAVAXMarketValue",
       Value.fromBigDecimal(BigDecimal.zero())
     );
+    this.set("ownedLiquidity", Value.fromBigDecimal(BigDecimal.zero()));
   }
 
   save(): void {
@@ -194,5 +195,14 @@ export class ProtocolMetric extends Entity {
 
   set treasuryWAVAXMarketValue(value: BigDecimal) {
     this.set("treasuryWAVAXMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get ownedLiquidity(): BigDecimal {
+    let value = this.get("ownedLiquidity");
+    return value!.toBigDecimal();
+  }
+
+  set ownedLiquidity(value: BigDecimal) {
+    this.set("ownedLiquidity", Value.fromBigDecimal(value));
   }
 }
