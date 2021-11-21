@@ -40,21 +40,6 @@ function getLiquidity(): BigDecimal {
     return getPairUSD(totalSupply, MIM_TIME_PAIR);
 }
 
-function getRunway(sOHM: BigDecimal, rfv: BigDecimal, rebase: BigDecimal): BigDecimal {
-    let runwayCurrent = BigDecimal.fromString("0")
-
-    if(sOHM.gt(BigDecimal.fromString("0")) && rfv.gt(BigDecimal.fromString("0")) &&  rebase.gt(BigDecimal.fromString("0"))){
-        let treasury_runway = Number.parseFloat(rfv.div(sOHM).toString())
-
-        let nextEpochRebase_number = Number.parseFloat(rebase.toString())/100
-        let runwayCurrent_num = (Math.log(treasury_runway) / Math.log(1+nextEpochRebase_number))/3;
-
-        runwayCurrent = BigDecimal.fromString(runwayCurrent_num.toString())
-    }
-
-    return runwayCurrent
-}
-
 function getOwnedLiquidity(): BigDecimal {
     const pair = ERC20.bind(Address.fromString(MIM_TIME_PAIR));
     const total = pair.totalSupply().toBigDecimal()
@@ -86,27 +71,6 @@ function getMvRfv(): BigDecimal[] {
         mimValue,
         mimFortRiskFreeValue
     ];
-}
-
-function getNextOHMRebase(event: ethereum.Event): BigDecimal{
-    let next_distribution = BigDecimal.fromString("0")
-
-    let staking_contract_v2 = FortStacking.bind(Address.fromString(STAKING_ADDRESS))
-    let distribution_v2 = toDecimal(staking_contract_v2.epoch().value3,9)
-    next_distribution = next_distribution.plus(distribution_v2)
-
-    return next_distribution
-}
-
-function getApyRebase(sOHM: BigDecimal, distributedOHM: BigDecimal): BigDecimal[]{
-    let nextEpochRebase = distributedOHM.div(sOHM).times(BigDecimal.fromString("100"));
-
-    let nextEpochRebase_number = Number.parseFloat(nextEpochRebase.toString())
-    let currentAPY = Math.pow(((nextEpochRebase_number/100)+1), (365*3)-1)*100
-
-    let currentAPYdecimal = BigDecimal.fromString(currentAPY.toString())
-
-    return [currentAPYdecimal, nextEpochRebase]
 }
 
 export function getDiscountedPairUSD(lp_amount: BigInt, pair_adress: string): BigDecimal{
