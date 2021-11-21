@@ -43,6 +43,7 @@ export class ProtocolMetric extends Entity {
       Value.fromBigDecimal(BigDecimal.zero())
     );
     this.set("ownedLiquidity", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("totalLiquidity", Value.fromBigDecimal(BigDecimal.zero()));
   }
 
   save(): void {
@@ -204,5 +205,14 @@ export class ProtocolMetric extends Entity {
 
   set ownedLiquidity(value: BigDecimal) {
     this.set("ownedLiquidity", Value.fromBigDecimal(value));
+  }
+
+  get totalLiquidity(): BigDecimal {
+    let value = this.get("totalLiquidity");
+    return value!.toBigDecimal();
+  }
+
+  set totalLiquidity(value: BigDecimal) {
+    this.set("totalLiquidity", Value.fromBigDecimal(value));
   }
 }

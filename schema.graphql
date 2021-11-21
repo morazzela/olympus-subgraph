@@ -15,4 +15,5 @@ type ProtocolMetric @entity {
   treasuryFORTMIMMarketValue: BigDecimal!
   treasuryWAVAXMarketValue: BigDecimal!
   ownedLiquidity: BigDecimal!
+  totalLiquidity: BigDecimal!
 }

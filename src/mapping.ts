@@ -17,9 +17,10 @@ export function updateProtocolMetrics(event: ethereum.Event): void{
     metrics.ohmCirculatingSupply = getFortCirculatingSupply(metrics.totalSupply)
     metrics.sOhmCirculatingSupply = getSFortCirculatingSupply()
     metrics.ohmPrice = getFORTPrice();
-    metrics.marketCap = metrics.totalSupply.times(metrics.ohmPrice)
+    metrics.marketCap = metrics.ohmCirculatingSupply.times(metrics.ohmPrice)
     metrics.totalValueLocked = metrics.sOhmCirculatingSupply.times(metrics.ohmPrice)
     metrics.ownedLiquidity = getOwnedLiquidity()
+    metrics.totalLiquidity = getLiquidity()
 
     const mvRfv = getMvRfv();
     metrics.treasuryMarketValue = mvRfv[0]
@@ -31,6 +32,12 @@ export function updateProtocolMetrics(event: ethereum.Event): void{
     metrics.treasuryFORTMIMRiskFreeValue = mvRfv[6]    
 
     metrics.save()
+}
+
+function getLiquidity(): BigDecimal {
+    const pair = JoePair.bind(Address.fromString(MIM_TIME_PAIR));
+    const totalSupply = pair.totalSupply();
+    return getPairUSD(totalSupply, MIM_TIME_PAIR);
 }
 
 function getRunway(sOHM: BigDecimal, rfv: BigDecimal, rebase: BigDecimal): BigDecimal {
