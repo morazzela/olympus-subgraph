@@ -28,6 +28,8 @@ dataSources:
           file: ./abis/JoePair.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: FortStacking
+          file: ./abis/FortStacking.json
       eventHandlers:
         - event: BondCreated(uint256,indexed uint256,indexed uint256,indexed uint256)
           handler: updateProtocolMetrics
