@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt, ethereum } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, ethereum, log } from '@graphprotocol/graph-ts'
 import { FORT } from '../generated/MIMBond/FORT'
 import { SFORT } from '../generated/MIMBond/SFORT'
 import { JoePair } from '../generated/MIMBond/JoePair'
@@ -32,7 +32,41 @@ export function updateProtocolMetrics(event: ethereum.Event): void{
     metrics.treasuryMIMRiskFreeValue = mvRfv[5]    
     metrics.treasuryFORTMIMRiskFreeValue = mvRfv[6]    
 
+    metrics.apy = getCurrentAPY();
+
     metrics.save()
+}
+
+function getCurrentAPY(): BigDecimal
+{
+    log.debug("start", []);
+    const sFort = SFORT.bind(Address.fromString(MEMO_ADDRESS));
+    const circ = sFort.circulatingSupply();
+
+    log.debug("1", []);
+    if (circ.isZero()) {
+        return BigDecimal.fromString("0");
+    }
+    log.debug("2", []);
+
+    const staking = FortStacking.bind(Address.fromString(STAKING_ADDRESS)).epoch();
+    log.debug("3", []);
+    const stakingReward = staking.value1
+    log.debug("4", []);
+    const stakingRebase = stakingReward.divDecimal(circ.toBigDecimal())
+    log.debug("5", []);
+
+    const val = stakingRebase.plus(BigDecimal.fromString("1"));
+    log.debug("6", []);
+    const exp = val.exp;
+    const digits = val.digits;
+
+    const part1 = digits.pow(<u8>1095).minus(BigInt.fromString("1"));
+    log.debug("7", []);
+    const stakingApy = part1.divDecimal(BigInt.fromString("10").pow(<u8>exp.toU32()).toBigDecimal());
+    log.debug("8", []);
+
+    return stakingApy;
 }
 
 function getLiquidity(): BigDecimal {

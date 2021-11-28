@@ -17,4 +17,5 @@ type ProtocolMetric @entity {
   treasuryWAVAXMarketValue: BigDecimal!
   ownedLiquidity: BigDecimal!
   totalLiquidity: BigDecimal!
+  apy: BigDecimal!
 }
