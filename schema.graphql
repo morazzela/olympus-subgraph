@@ -1,6 +1,7 @@
 type ProtocolMetric @entity {
   id: ID!
   timestamp: BigInt!
+  blockNumber: BigInt!
   ohmCirculatingSupply: BigDecimal!
   sOhmCirculatingSupply: BigDecimal!
   totalSupply: BigDecimal!

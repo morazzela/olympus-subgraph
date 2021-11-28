@@ -4,7 +4,7 @@ import { SFORT } from '../generated/MIMBond/SFORT'
 import { JoePair } from '../generated/MIMBond/JoePair'
 import { ERC20 } from '../generated/MIMBond/ERC20'
 import { FortStacking } from '../generated/MIMBond/FortStacking'
-import { DAO_ADDRESS, MEMO_ADDRESS, MIM_ADDRESS, MIM_BOND_ADDRESS, MIM_TIME_BOND_ADDRESS, MIM_TIME_PAIR, STAKING_ADDRESS, TIME_ADDRESS, TREASURY_ADDRESS, WAVAX_ADDRESS, WAVAX_BOND_ADDRESS, WAVAX_USDC_PAIR } from './constants';
+import { DAO_ADDRESS, MEMO_ADDRESS, MIM_ADDRESS, MIM_BOND_ADDRESS, MIM_TIME_BOND_ADDRESS, MIM_TIME_PAIR, STAKING_ADDRESS, TIME_ADDRESS, TREASURY_ADDRESS, WAVAX_ADDRESS, WAVAX_BOND_ADDRESS, WAVAX_TIME_BOND_ADDRESS, WAVAX_USDC_PAIR } from './constants';
 import { ProtocolMetric } from '../generated/schema'
 
 const POW_9 = BigInt.fromI32(10).pow(9).toBigDecimal();
@@ -13,6 +13,7 @@ export function updateProtocolMetrics(event: ethereum.Event): void{
     let metrics = loadOrCreateProtocolMetrics(event.block.timestamp);
 
     metrics.timestamp = event.block.timestamp;
+    metrics.blockNumber = event.block.number
     metrics.totalSupply = getTotalSupply()
     metrics.ohmCirculatingSupply = getFortCirculatingSupply(metrics.totalSupply)
     metrics.sOhmCirculatingSupply = getSFortCirculatingSupply()
@@ -128,11 +129,14 @@ function getFortCirculatingSupply(totalSupply: BigDecimal): BigDecimal {
     const mimBondBalance = toDecimal(fort.balanceOf(Address.fromString(MIM_BOND_ADDRESS)), 9)
     const wavaxBondBalance = toDecimal(fort.balanceOf(Address.fromString(WAVAX_BOND_ADDRESS)), 9)
     const fortMimBondBalance = toDecimal(fort.balanceOf(Address.fromString(MIM_TIME_BOND_ADDRESS)), 9)
+    const fortAvaxBondBalance = toDecimal(fort.balanceOf(Address.fromString(WAVAX_TIME_BOND_ADDRESS)), 9)
+
     return totalSupply
         .minus(daoBalance)
         .minus(mimBondBalance)
         .minus(wavaxBondBalance)
         .minus(fortMimBondBalance)
+        .minus(fortAvaxBondBalance)
 }
 
 function getSFortCirculatingSupply(): BigDecimal {

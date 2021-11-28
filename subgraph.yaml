@@ -1,6 +1,6 @@
 specVersion: 0.0.2
-description: Olympus DAO Subgraph
-repository: https://github.com/OlympusDAO/olympus-subgraph
+description: Fortress DAO Subgraph
+repository: https://github.com/Fortress-DAO/subgraphs
 schema:
   file: ./schema.graphql
 dataSources:
