@@ -4,7 +4,7 @@ import { SFORT } from '../generated/MIMBond/SFORT'
 import { JoePair } from '../generated/MIMBond/JoePair'
 import { ERC20 } from '../generated/MIMBond/ERC20'
 import { FortStacking } from '../generated/MIMBond/FortStacking'
-import { DAO_ADDRESS, FORT_TIME_PAIR, MEMO_ADDRESS, MIM_ADDRESS, MIM_BOND_ADDRESS, MIM_TIME_BOND_ADDRESS, MIM_TIME_PAIR, STAKING_ADDRESS, TIME_ADDRESS, TREASURY_ADDRESS, WAVAX_ADDRESS, WAVAX_BOND_ADDRESS, WAVAX_TIME_BOND_ADDRESS, WAVAX_USDC_PAIR } from './constants';
+import { DAO_ADDRESS, MEMO_ADDRESS, MIM_ADDRESS, MIM_BOND_ADDRESS, MIM_TIME_BOND_ADDRESS, MIM_TIME_PAIR, STAKING_ADDRESS, TIME_ADDRESS, TREASURY_ADDRESS, WAVAX_ADDRESS, WAVAX_BOND_ADDRESS, WAVAX_TIME_BOND_ADDRESS, WAVAX_USDC_PAIR } from './constants';
 import { ProtocolMetric } from '../generated/schema'
 
 const POW_9 = BigInt.fromI32(10).pow(9).toBigDecimal();
@@ -29,10 +29,8 @@ export function updateProtocolMetrics(event: ethereum.Event): void{
     metrics.treasuryMIMMarketValue = mvRfv[2]
     metrics.treasuryWAVAXMarketValue = mvRfv[3]
     metrics.treasuryFORTMIMMarketValue = mvRfv[4]
-    metrics.treasuryFORTAVAXMarketValue = mvRfv[5]
     metrics.treasuryMIMRiskFreeValue = mvRfv[6]    
     metrics.treasuryFORTMIMRiskFreeValue = mvRfv[7]    
-    metrics.treasuryFORTAVAXRiskFreeValue = mvRfv[8]    
 
     metrics.apy = getCurrentAPY();
 
@@ -90,21 +88,14 @@ function getMvRfv(): BigDecimal[] {
     const mimFortValue = getPairUSD(mimFortBalance, MIM_TIME_PAIR)
     const mimFortRiskFreeValue = getDiscountedPairUSD(mimFortBalance, MIM_TIME_PAIR)
 
-    const avaxFort = ERC20.bind(Address.fromString(FORT_TIME_PAIR));
-    const avaxFortBalance = avaxFort.balanceOf(treasuryAddress)
-    const avaxFortValue = getPairUSD(avaxFortBalance, FORT_TIME_PAIR)
-    const avaxFortRiskFreeValue = getDiscountedPairUSD(avaxFortBalance, FORT_TIME_PAIR)
-
     return [
         mimValue.plus(wavaxValue).plus(mimFortValue),
         mimValue.plus(mimFortRiskFreeValue),
         mimValue,
         wavaxValue,
         mimFortValue,
-        avaxFortValue,
         mimValue,
         mimFortRiskFreeValue,
-        avaxFortRiskFreeValue
     ];
 }
 
