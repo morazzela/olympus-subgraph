@@ -33,8 +33,16 @@ export class ProtocolMetric extends Entity {
       "treasuryFORTMIMRiskFreeValue",
       Value.fromBigDecimal(BigDecimal.zero())
     );
+    this.set(
+      "treasuryFORTAVAXRiskFreeValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
     this.set("treasuryMarketValue", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("treasuryMIMMarketValue", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set(
+      "treasuryFORTAVAXMarketValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
     this.set(
       "treasuryFORTMIMMarketValue",
       Value.fromBigDecimal(BigDecimal.zero())
@@ -173,6 +181,15 @@ export class ProtocolMetric extends Entity {
     this.set("treasuryFORTMIMRiskFreeValue", Value.fromBigDecimal(value));
   }
 
+  get treasuryFORTAVAXRiskFreeValue(): BigDecimal {
+    let value = this.get("treasuryFORTAVAXRiskFreeValue");
+    return value!.toBigDecimal();
+  }
+
+  set treasuryFORTAVAXRiskFreeValue(value: BigDecimal) {
+    this.set("treasuryFORTAVAXRiskFreeValue", Value.fromBigDecimal(value));
+  }
+
   get treasuryMarketValue(): BigDecimal {
     let value = this.get("treasuryMarketValue");
     return value!.toBigDecimal();
@@ -189,6 +206,15 @@ export class ProtocolMetric extends Entity {
 
   set treasuryMIMMarketValue(value: BigDecimal) {
     this.set("treasuryMIMMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get treasuryFORTAVAXMarketValue(): BigDecimal {
+    let value = this.get("treasuryFORTAVAXMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set treasuryFORTAVAXMarketValue(value: BigDecimal) {
+    this.set("treasuryFORTAVAXMarketValue", Value.fromBigDecimal(value));
   }
 
   get treasuryFORTMIMMarketValue(): BigDecimal {

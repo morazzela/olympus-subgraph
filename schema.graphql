@@ -11,8 +11,10 @@ type ProtocolMetric @entity {
   treasuryRiskFreeValue: BigDecimal!
   treasuryMIMRiskFreeValue: BigDecimal!
   treasuryFORTMIMRiskFreeValue: BigDecimal!
+  treasuryFORTAVAXRiskFreeValue: BigDecimal!
   treasuryMarketValue: BigDecimal!
   treasuryMIMMarketValue: BigDecimal!
+  treasuryFORTAVAXMarketValue: BigDecimal!
   treasuryFORTMIMMarketValue: BigDecimal!
   treasuryWAVAXMarketValue: BigDecimal!
   ownedLiquidity: BigDecimal!

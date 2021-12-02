@@ -1,10 +1,10 @@
-import { Address, BigDecimal, BigInt, ethereum, log } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, bigInt, BigInt, ethereum, log } from '@graphprotocol/graph-ts'
 import { FORT } from '../generated/MIMBond/FORT'
 import { SFORT } from '../generated/MIMBond/SFORT'
 import { JoePair } from '../generated/MIMBond/JoePair'
 import { ERC20 } from '../generated/MIMBond/ERC20'
 import { FortStacking } from '../generated/MIMBond/FortStacking'
-import { DAO_ADDRESS, MEMO_ADDRESS, MIM_ADDRESS, MIM_BOND_ADDRESS, MIM_TIME_BOND_ADDRESS, MIM_TIME_PAIR, STAKING_ADDRESS, TIME_ADDRESS, TREASURY_ADDRESS, WAVAX_ADDRESS, WAVAX_BOND_ADDRESS, WAVAX_TIME_BOND_ADDRESS, WAVAX_USDC_PAIR } from './constants';
+import { DAO_ADDRESS, FORT_TIME_PAIR, MEMO_ADDRESS, MIM_ADDRESS, MIM_BOND_ADDRESS, MIM_TIME_BOND_ADDRESS, MIM_TIME_PAIR, STAKING_ADDRESS, TIME_ADDRESS, TREASURY_ADDRESS, WAVAX_ADDRESS, WAVAX_BOND_ADDRESS, WAVAX_TIME_BOND_ADDRESS, WAVAX_USDC_PAIR } from './constants';
 import { ProtocolMetric } from '../generated/schema'
 
 const POW_9 = BigInt.fromI32(10).pow(9).toBigDecimal();
@@ -29,8 +29,10 @@ export function updateProtocolMetrics(event: ethereum.Event): void{
     metrics.treasuryMIMMarketValue = mvRfv[2]
     metrics.treasuryWAVAXMarketValue = mvRfv[3]
     metrics.treasuryFORTMIMMarketValue = mvRfv[4]
-    metrics.treasuryMIMRiskFreeValue = mvRfv[5]    
-    metrics.treasuryFORTMIMRiskFreeValue = mvRfv[6]    
+    metrics.treasuryFORTAVAXMarketValue = mvRfv[5]
+    metrics.treasuryMIMRiskFreeValue = mvRfv[6]    
+    metrics.treasuryFORTMIMRiskFreeValue = mvRfv[7]    
+    metrics.treasuryFORTAVAXRiskFreeValue = mvRfv[8]    
 
     metrics.apy = getCurrentAPY();
 
@@ -39,34 +41,25 @@ export function updateProtocolMetrics(event: ethereum.Event): void{
 
 function getCurrentAPY(): BigDecimal
 {
-    log.debug("start", []);
+    const staking = FortStacking.bind(Address.fromString(STAKING_ADDRESS)).epoch();
     const sFort = SFORT.bind(Address.fromString(MEMO_ADDRESS));
-    const circ = sFort.circulatingSupply();
+    let circ = toDecimal(sFort.circulatingSupply(), 9);
+    const stakingReward = toDecimal(staking.value1, 9)
 
-    log.debug("1", []);
-    if (circ.isZero()) {
+    if (circ.lt(stakingReward) || circ.equals(stakingReward)) {
         return BigDecimal.fromString("0");
     }
-    log.debug("2", []);
 
-    const staking = FortStacking.bind(Address.fromString(STAKING_ADDRESS)).epoch();
-    log.debug("3", []);
-    const stakingReward = staking.value1
-    log.debug("4", []);
-    const stakingRebase = stakingReward.divDecimal(circ.toBigDecimal())
-    log.debug("5", []);
+    const stakingRebase = stakingReward.div(circ)
+    const stakingRebaseNumber = Number.parseFloat(stakingRebase.toString())
 
-    const val = stakingRebase.plus(BigDecimal.fromString("1"));
-    log.debug("6", []);
-    const exp = val.exp;
-    const digits = val.digits;
+    log.debug("staking reward : {}", [stakingReward.toString()])
+    log.debug("circ : {}", [circ.toString()])
+    log.debug("staking rebase : {}", [stakingRebaseNumber.toString()])
 
-    const part1 = digits.pow(<u8>1095).minus(BigInt.fromString("1"));
-    log.debug("7", []);
-    const stakingApy = part1.divDecimal(BigInt.fromString("10").pow(<u8>exp.toU32()).toBigDecimal());
-    log.debug("8", []);
+    const stakingAPY = Math.pow(stakingRebaseNumber + 1, 365 * 3) - 1;
 
-    return stakingApy;
+    return BigDecimal.fromString(stakingAPY.toString()).times(BigDecimal.fromString("100"))
 }
 
 function getLiquidity(): BigDecimal {
@@ -97,14 +90,21 @@ function getMvRfv(): BigDecimal[] {
     const mimFortValue = getPairUSD(mimFortBalance, MIM_TIME_PAIR)
     const mimFortRiskFreeValue = getDiscountedPairUSD(mimFortBalance, MIM_TIME_PAIR)
 
+    const avaxFort = ERC20.bind(Address.fromString(FORT_TIME_PAIR));
+    const avaxFortBalance = avaxFort.balanceOf(treasuryAddress)
+    const avaxFortValue = getPairUSD(avaxFortBalance, FORT_TIME_PAIR)
+    const avaxFortRiskFreeValue = getDiscountedPairUSD(avaxFortBalance, FORT_TIME_PAIR)
+
     return [
         mimValue.plus(wavaxValue).plus(mimFortValue),
         mimValue.plus(mimFortRiskFreeValue),
         mimValue,
         wavaxValue,
         mimFortValue,
+        avaxFortValue,
         mimValue,
-        mimFortRiskFreeValue
+        mimFortRiskFreeValue,
+        avaxFortRiskFreeValue
     ];
 }
 
